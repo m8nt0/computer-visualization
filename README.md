@@ -2,6 +2,9 @@
 
 A modern, Rust-based visualization system for computer architecture components and their interactions. This project provides an educational and interactive way to understand how computers work at a hardware level.
 
+## 📌 Topics
+`rust` `computer-architecture` `visualization` `educational` `computer-science` `hardware` `cpu` `gpu` `memory-management` `system-design` `computer-engineering` `simulation` `rust-lang` `low-level` `performance`
+
 ## 🌟 Features
 
 - **CPU Visualization**
