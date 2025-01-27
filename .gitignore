@@ -1,0 +1,30 @@
+# Rust specific
+/target/
+**/*.rs.bk
+Cargo.lock
+
+# IDE specific
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS specific
+.DS_Store
+.env
+*.pem
+*.log
+
+# Build artifacts
+*.o
+*.so
+*.dylib
+*.dll
+
+# Personal
+notes.txt
+TODO.txt
+*.private
+*.secret 
+
+holla.rs
