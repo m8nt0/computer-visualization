@@ -1,8 +1,31 @@
 [package]
-name = "mini_computer"
+name = "computer-visual"
 version = "0.1.0"
 edition = "2021"
+default-run = "computer-visual"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-minifb = "0.25"
+minifb = "0.25.0"
 fontdue = "0.7"
+
+[lib]
+name = "computer_visual"
+path = "computer/lib.rs"
+
+[[bin]]
+name = "computer-visual"
+path = "computer/main.rs"
+
+[[bin]]
+name = "laptop-visualization"
+path = "computer/laptop/personal/main.rs"
+
+[[bin]]
+name = "laptop-demo"
+path = "computer/laptop/general/demo.rs"
+
+[[bin]]
+name = "demo"
+path = "demo.rs"
