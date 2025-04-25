@@ -1,5 +1,6 @@
 # Rust specific
 /target/
+**/target/
 **/*.rs.bk
 Cargo.lock
 
@@ -26,5 +27,3 @@ notes.txt
 TODO.txt
 *.private
 *.secret 
-
-holla.rs
