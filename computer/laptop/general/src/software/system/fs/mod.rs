@@ -1,6 +1,8 @@
 pub mod vfs;
+pub mod filesystem;
 
 pub use vfs::VirtualFileSystem;
+pub use filesystem::FileSystem;
 
 #[derive(Debug)]
 pub enum FileSystemError {

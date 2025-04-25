@@ -3,13 +3,7 @@ pub mod cache;
 pub mod cores;
 pub mod registers;
 
-// Basic CPU implementation
-
-use crate::hardware::processing::cpu::alu::ALU;
-use crate::hardware::processing::cpu::cache::Cache;
-use crate::hardware::processing::cpu::cores::Cores;
-use crate::hardware::processing::cpu::registers::Registers;
-
+/// Basic CPU implementation
 pub struct CPU {
     cores: u8,
     clock_speed: f32, // GHz

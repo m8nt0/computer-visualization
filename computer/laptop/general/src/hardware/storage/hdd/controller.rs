@@ -1,7 +1,7 @@
 use super::head::DiskHead;
 use super::platter::Platter;
 use super::cache::DiskCache;
-use super::super::error::{StorageError, StorageResult};
+use super::error::{StorageError, StorageResult};
 
 pub struct DiskController {
     heads: Vec<DiskHead>,

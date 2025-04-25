@@ -1,0 +1,1 @@
+Mostly this part is used for storage that presist, even though it doesnt still make sense on why the term storage and memory still being used, even though storage is just another way of saying non-volatile memeory, just like fram, rram, mram coming out to be cutting-edge alternatives? is based on size, maybe storage like ssd and hdd have more size to them?

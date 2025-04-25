@@ -1,111 +1,76 @@
 // Export all modules in gpu
 
-pub mod compute;
-pub mod display;
-pub mod memory;
-pub mod scheduler;
-pub mod command;
-pub mod resources;
-pub mod sync;
 
-use super::bus::Bus;
-use super::error::{GPUError, GPUResult};
-use self::compute::{ShaderCore, RayCore, TensorCore};
-use self::memory::{GPUMemory, VRAMController};
-use self::scheduler::Dispatcher;
-use self::display::DisplayController;
-use self::command::CommandProcessor;
-use self::resources::ResourceManager;
-
+// Basic GPU implementation
 pub struct GPU {
-    // Core components
-    shader_cores: Vec<ShaderCore>,
-    ray_cores: Vec<RayCore>,
-    tensor_cores: Vec<TensorCore>,
-    
-    // Memory subsystem
-    memory: GPUMemory,
-    vram: VRAMController,
-    
-    // Display and scheduling
-    display: DisplayController,
-    dispatcher: Dispatcher,
-    
-    // System interface
-    bus: *mut Bus,
-    
-    // State and metrics
-    power_state: PowerState,
-    temperature: f32,
-    utilization: f32,
-    stats: GPUStats,
-    
-    command_processor: CommandProcessor,
-    resource_manager: ResourceManager,
-}
-
-#[derive(Clone, Copy, PartialEq)]
-pub enum PowerState {
-    Active,
-    Idle,
-    LowPower,
-    Sleep,
-}
-
-struct GPUStats {
-    frames_rendered: u64,
-    shader_invocations: u64,
-    ray_traces: u64,
-    tensor_ops: u64,
-    memory_bandwidth: f32,
-    power_consumption: f32,
+    cores: u16,
+    memory: u16, // GB
+    utilization: f32, // 0-100%
+    temperature: f32, // Celsius
+    is_initialized: bool,
 }
 
 impl GPU {
-    pub fn new(bus: *mut Bus) -> Self {
+    pub fn new() -> Self {
         Self {
-            shader_cores: (0..32).map(|id| ShaderCore::new(id)).collect(),
-            ray_cores: (0..4).map(|id| RayCore::new(id)).collect(),
-            tensor_cores: (0..8).map(|id| TensorCore::new(id)).collect(),
-            memory: GPUMemory::new(),
-            vram: VRAMController::new(),
-            display: DisplayController::new(),
-            dispatcher: Dispatcher::new(),
-            bus,
-            power_state: PowerState::Active,
-            temperature: 45.0,
+            cores: 2048,
+            memory: 8,
             utilization: 0.0,
-            stats: GPUStats::default(),
-            command_processor: CommandProcessor::new(),
-            resource_manager: ResourceManager::new(),
+            temperature: 30.0,
+            is_initialized: false,
         }
     }
-
-    pub fn tick(&mut self) {
-        // Update all components
-        self.update_cores();
-        self.memory.tick();
-        self.vram.tick();
-        self.display.tick();
-        self.dispatcher.tick();
+    
+    pub fn initialize(&mut self) -> bool {
+        println!("GPU initializing with {} cores and {}GB memory", self.cores, self.memory);
+        self.is_initialized = true;
+        self.temperature = 35.0; // GPU warms up during initialization
+        true
+    }
+    
+    pub fn shutdown(&mut self) -> bool {
+        println!("GPU shutting down");
+        self.is_initialized = false;
+        self.utilization = 0.0;
+        self.temperature = 30.0;
+        true
+    }
+    
+    pub fn process(&mut self, data: &[u8]) -> Vec<u8> {
+        if !self.is_initialized {
+            return vec![0xFF]; // Error code
+        }
         
-        // Update system state
-        self.update_temperature();
-        self.update_power_state();
-        self.update_stats();
+        // Simulate GPU processing - graphics operations are intensive
+        let workload = data.len() as f32 / 5.0;
+        self.utilization = (self.utilization + workload * 10.0).min(100.0);
+        
+        // GPUs can get quite hot under load
+        self.temperature = self.temperature * 0.9 + (40.0 + self.utilization * 0.6) * 0.1;
+        
+        // Generate frame data or computation results
+        let mut result = Vec::with_capacity(data.len());
+        
+        // Simple transformation of input data
+        for byte in data {
+            result.push(byte.wrapping_add(1)); // Just a simple transformation
+        }
+        
+        // Success code
+        result.push(0x00);
+        
+        result
     }
-
-    fn update_cores(&mut self) {
-        for core in &mut self.shader_cores {
-            core.tick();
-        }
-        for core in &mut self.ray_cores {
-            core.tick();
-        }
-        for core in &mut self.tensor_cores {
-            core.tick();
-        }
+    
+    pub fn get_utilization(&self) -> f32 {
+        self.utilization
     }
-
-    // State management methods...
-}
+    
+    pub fn get_temperature(&self) -> f32 {
+        self.temperature
+    }
+    
+    pub fn get_status(&self) -> String {
+        format!("{:.1}% @ {:.1}°C", self.utilization, self.temperature)
+    }
+} 

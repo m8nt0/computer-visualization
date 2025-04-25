@@ -1,5 +1,3 @@
 // Export all modules in storage
-pub mod disk;
+pub mod hdd;
 pub mod ssd;
-pub mod filesystem;
-pub mod nvme;

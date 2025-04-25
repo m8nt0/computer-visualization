@@ -1,4 +1,4 @@
-use super::super::error::{StorageError, StorageResult};
+use super::error::{StorageError, StorageResult};
 
 pub struct DiskHead {
     current_cylinder: u32,

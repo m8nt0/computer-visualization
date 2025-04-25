@@ -3,3 +3,5 @@ pub mod cache;
 pub mod controller;
 pub mod head;
 pub mod platter;
+
+pub mod error;

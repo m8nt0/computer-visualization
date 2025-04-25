@@ -1,7 +1,7 @@
-use crate::hardware::cooling::fans::Fan;
-use crate::hardware::cooling::heat_pipes::HeatPipe;
-use crate::hardware::cooling::thermal_paste::ThermalPaste;
-use crate::hardware::cooling::thermal_sensors::ThermalSensor;
+use super::fans::Fan;
+use super::heat_pipes::HeatPipe;
+use super::thermal_paste::ThermalPaste;
+use super::thermal_sensors::ThermalSensor;
 use std::collections::HashMap;
 
 pub struct CoolingSystem {

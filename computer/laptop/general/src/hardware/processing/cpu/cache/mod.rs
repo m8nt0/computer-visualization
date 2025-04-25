@@ -1,3 +1,7 @@
+pub mod levels;
+pub mod policies;
+
+// adress the error
 use super::error::{CacheError, CacheResult};
 use std::collections::HashMap;
 
