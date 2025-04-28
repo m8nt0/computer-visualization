@@ -1,6 +1,6 @@
 #Comparison of the different Bus connectors
 
-Bus Name: PCIe (Peripheral Component Interconnect Express)
+<!-- Bus Name: PCIe (Peripheral Component Interconnect Express)
 What it Connects: CPU â‡„ GPU, Storage (M.2 NVMe SSDs), Wi-Fi cards
 Speed: Very fast (gen 3, 4, 5 versions)
 Comment: Main fast connection for modern parts.
@@ -28,7 +28,7 @@ Comment: Specialized for peripherals.
 Bus Name: I2C / SMBus / SPI
 What it Connects: CPU/Chipset â‡„ Sensors, keyboard, battery, etc.
 Speed: Very slow
-Comment: Tiny communication tasks.
+Comment: Tiny communication tasks. -->
 
 --------------------------------------------------------------------
 

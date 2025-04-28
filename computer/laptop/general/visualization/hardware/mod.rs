@@ -1,17 +1,25 @@
 use super::common::{Point, Size, Color, Rect};
 
-pub mod bus;
-pub mod cache;
-pub mod clock;
-pub mod cpu;
-pub mod dma;
-pub mod gpu;
-pub mod interrupt;
-pub mod io;
+// pub mod bus;
+// pub mod cache;
+// pub mod clock;
+// pub mod cpu;
+// pub mod dma;
+// pub mod gpu;
+// pub mod interrupt;
+// pub mod io;
+// pub mod memory;
+// pub mod mmu;
+// pub mod power;
+// pub mod storage;
+
+pub mod cooling;
 pub mod memory;
-pub mod mmu;
+pub mod peripherals;
 pub mod power;
+pub mod processing;
 pub mod storage;
+pub mod firmware;
 
 pub struct HardwareVisualizer {
     // Main components
