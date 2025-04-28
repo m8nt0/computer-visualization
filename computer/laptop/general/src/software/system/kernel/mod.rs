@@ -1,6 +1,9 @@
-pub mod process;
+pub mod security;
 pub mod memory;
 pub mod scheduler;
+pub mod interrupt_handler;
+pub mod ipc;
+pub mod syscall;
 
 pub struct Kernel {
     scheduler: scheduler::Scheduler,

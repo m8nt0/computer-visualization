@@ -1,0 +1,1 @@
+I think this will be integrated with hardware, becuase its essentially hardware and software, but zoomed out. or rather what is the result of both hardware and software.

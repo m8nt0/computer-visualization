@@ -1,0 +1,1 @@
+//The type of packaging that is usually used for GPU is BGA (Ball Grid Array), soldered directly to motherboard in most laptops

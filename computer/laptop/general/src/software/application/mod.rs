@@ -1,5 +1,12 @@
 pub mod browser;
-pub mod email;
-pub mod text_editor;
 pub mod calculator;
-pub mod game;
+pub mod editor;
+pub mod file_manager;
+pub mod media_player;
+
+
+pub mod text_editor;
+
+
+pub mod terminal;
+pub mod shell;
