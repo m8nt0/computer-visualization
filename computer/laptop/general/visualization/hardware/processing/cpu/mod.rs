@@ -1,68 +1,110 @@
-use super::common::{Point, Size, Color};
-use crate::hardware::cpu::{CPU, Pipeline, ALU, Registers};
+use super::super::super::src::hardware::visualization::{HardwareVisualizer, HardwareComponent};
+use super::super::super::src::hardware::processing::cpu::CPU;
+use crate::common::{Point, Size, Color};
 
-pub mod core;
+pub mod alu;
 pub mod cache;
+pub mod core;
 pub mod pipeline;
 
 pub struct CpuVisualizer {
     position: Point,
     size: Size,
-    core_visualizer: core::CoreVisualizer,
-    pipeline_visualizer: pipeline::PipelineVisualizer,
-    cache_visualizer: cache::CacheVisualizer,
-    temperature_map: TemperatureMap,
+    components: CpuComponents,
+    colors: CpuColors,
+}
+
+struct CpuComponents {
+    alu: alu::AluVisualizer,
+    cache: cache::CacheVisualizer,
+    core: core::CoreVisualizer,
+    pipeline: pipeline::PipelineVisualizer,
+}
+
+struct CpuColors {
+    background: Color,
+    active: Color,
+    inactive: Color,
+    highlight: Color,
+    error: Color,
 }
 
 impl CpuVisualizer {
     pub fn new(position: Point, size: Size) -> Self {
+        let colors = CpuColors {
+            background: Color::new(0.2, 0.2, 0.2, 1.0),
+            active: Color::new(0.0, 1.0, 0.0, 1.0),
+            inactive: Color::new(0.5, 0.5, 0.5, 1.0),
+            highlight: Color::new(0.0, 0.7, 1.0, 1.0),
+            error: Color::new(1.0, 0.0, 0.0, 1.0),
+        };
+
+        // Calculate component positions and sizes
+        let alu_size = Size::new(size.width * 0.3, size.height * 0.4);
+        let cache_size = Size::new(size.width * 0.2, size.height * 0.3);
+        let core_size = Size::new(size.width * 0.4, size.height * 0.5);
+        let pipeline_size = Size::new(size.width * 0.9, size.height * 0.2);
+
+        let components = CpuComponents {
+            alu: alu::AluVisualizer::new(
+                Point::new(position.x + size.width * 0.1, position.y + size.height * 0.1),
+                alu_size
+            ),
+            cache: cache::CacheVisualizer::new(
+                Point::new(position.x + size.width * 0.6, position.y + size.height * 0.1),
+                cache_size
+            ),
+            core: core::CoreVisualizer::new(
+                Point::new(position.x + size.width * 0.3, position.y + size.height * 0.3),
+                core_size
+            ),
+            pipeline: pipeline::PipelineVisualizer::new(
+                Point::new(position.x + size.width * 0.05, position.y + size.height * 0.7),
+                pipeline_size
+            ),
+        };
+
         Self {
             position,
             size,
-            core_visualizer: core::CoreVisualizer::new(),
-            pipeline_visualizer: pipeline::PipelineVisualizer::new(),
-            cache_visualizer: cache::CacheVisualizer::new(),
-            temperature_map: TemperatureMap::new(),
+            components,
+            colors,
         }
     }
 
-    pub fn update(&mut self, cpu: &CPU) {
-        self.core_visualizer.update(cpu);
-        self.pipeline_visualizer.update(&cpu.pipeline);
-        self.cache_visualizer.update(&cpu.cache);
-        self.temperature_map.update(&cpu.temperature_sensors);
+    fn draw_background(&self) {
+        let rect = crate::common::Rect::new(self.position, self.size);
+        rect.fill(self.colors.background);
     }
 
-    pub fn render(&self, frame: &mut Frame) {
-        // Draw CPU die outline
-        self.draw_die_outline(frame);
-        
-        // Render core components
-        self.core_visualizer.render(frame);
-        self.pipeline_visualizer.render(frame);
-        self.cache_visualizer.render(frame);
-        
-        // Render temperature overlay
-        self.temperature_map.render(frame);
-        
-        // Draw performance metrics
-        self.draw_metrics(frame);
+    fn draw_connections(&self) {
+        // Draw connections between components
+        // This would be implemented based on the actual CPU architecture
     }
+}
 
-    pub fn handle_interaction(&mut self, event: &InteractionEvent) -> bool {
-        // Handle mouse hover/clicks on different CPU components
-        if let Some(component) = self.get_component_at(event.position) {
-            match event.kind {
-                InteractionKind::Hover => {
-                    self.show_component_details(component);
-                }
-                InteractionKind::Click => {
-                    self.toggle_component_view(component);
-                }
-            }
-            true
-        } else {
-            false
+impl HardwareVisualizer for CpuVisualizer {
+    fn update(&mut self, component: &dyn HardwareComponent) {
+        if let Some(cpu) = component.as_any().downcast_ref::<CPU>() {
+            // Update all CPU components
+            self.components.alu.update(cpu.get_alu());
+            self.components.cache.update(cpu.get_cache());
+            self.components.core.update(cpu.get_core());
+            self.components.pipeline.update(cpu.get_pipeline());
         }
+    }
+
+    fn render(&self) {
+        // Draw CPU background
+        self.draw_background();
+        
+        // Draw connections between components
+        self.draw_connections();
+        
+        // Render all components
+        self.components.alu.render();
+        self.components.cache.render();
+        self.components.core.render();
+        self.components.pipeline.render();
     }
 } 

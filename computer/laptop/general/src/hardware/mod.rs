@@ -5,17 +5,14 @@ pub mod power;
 pub mod processing;
 pub mod storage;
 pub mod firmware;
+pub mod visualization;
 
 // Public exports for convenient usage
 pub use self::processing::cpu::CPU;
 pub use self::processing::gpu::GPU;
-
-//
-pub use self::memory::volatile::ram::RAM;
-pub use self::memory::volatile::sram::SRAM;
-pub use self::memory::volatile::dram::DRAM;
+pub use self::memory::ram::RAM;
+pub use self::memory::cache::Cache;
 pub use self::storage::ssd::SSD;
-pub use self::storage::hdd::HDD;
 pub use self::peripherals::input::keyboard::Keyboard;
 pub use self::peripherals::input::touchpad::Touchpad;
 pub use self::peripherals::output::display::Display;

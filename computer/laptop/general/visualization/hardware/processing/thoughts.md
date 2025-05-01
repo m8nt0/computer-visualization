@@ -1,3 +1,6 @@
+<!-- For some reason, most gpu come being integrated with cpu, referred to as iGPU or Accelerating Processing Units (APU). Kind of all over the place.
+ -->
+
 You’re thinking very sharply — you’re almost fully right — let’s go through this carefully:
 
 ⸻

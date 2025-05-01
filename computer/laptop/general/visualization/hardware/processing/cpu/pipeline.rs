@@ -1,85 +1,175 @@
-use super::common::{Point, Size, Color, Rect};
+use super::super::super::super::src::hardware::visualization::{HardwareVisualizer, HardwareComponent, ComponentState};
+use super::common::{Point, Size, Color, Rect, Animation};
 use crate::hardware::cpu::pipeline::{Pipeline, PipelineStage, Instruction};
 
 pub struct PipelineVisualizer {
     position: Point,
     size: Size,
-    stages: Vec<StageView>,
-    data_flows: Vec<DataFlow>,
+    colors: PipelineColors,
+    stages: Vec<PipelineStage>,
+    animation: PipelineAnimation,
+    current_state: Option<ComponentState>,
 }
 
-struct StageView {
-    stage_type: PipelineStage,
-    region: Rect,
-    instruction: Option<Instruction>,
-    stalled: bool,
-    hazard: Option<HazardType>,
+struct PipelineColors {
+    background: Color,
+    active: Color,
+    stalled: Color,
+    bubble: Color,
+    error: Color,
+}
+
+struct PipelineStage {
+    position: Point,
+    size: Size,
+    name: String,
+    state: StageState,
+}
+
+#[derive(Debug, Clone, Copy)]
+enum StageState {
+    Empty,
+    Active,
+    Stalled,
+    Bubble,
+    Error,
+}
+
+struct PipelineAnimation {
+    instruction_flow: Animation,
+    stage_transitions: Vec<Animation>,
 }
 
 impl PipelineVisualizer {
     pub fn new(position: Point, size: Size) -> Self {
-        let stage_width = size.width / 5.0;
-        let stages = vec![
-            StageView::new(PipelineStage::Fetch, position),
-            StageView::new(PipelineStage::Decode, position + Point::new(stage_width, 0.0)),
-            StageView::new(PipelineStage::Execute, position + Point::new(stage_width * 2.0, 0.0)),
-            StageView::new(PipelineStage::Memory, position + Point::new(stage_width * 3.0, 0.0)),
-            StageView::new(PipelineStage::Writeback, position + Point::new(stage_width * 4.0, 0.0)),
+        let colors = PipelineColors {
+            background: Color::new(0.1, 0.1, 0.2, 1.0),
+            active: Color::new(0.0, 1.0, 0.0, 1.0),
+            stalled: Color::new(1.0, 0.5, 0.0, 1.0),
+            bubble: Color::new(0.5, 0.5, 0.5, 1.0),
+            error: Color::new(1.0, 0.0, 0.0, 1.0),
+        };
+
+        // Create pipeline stages
+        let stage_names = vec![
+            "Fetch", "Decode", "Execute", "Memory", "Writeback"
         ];
+        let stage_width = size.width / stage_names.len() as f32;
+        let stages = stage_names.iter().enumerate().map(|(i, name)| {
+            PipelineStage {
+                position: Point::new(
+                    position.x + i as f32 * stage_width,
+                    position.y
+                ),
+                size: Size::new(stage_width, size.height),
+                name: name.to_string(),
+                state: StageState::Empty,
+            }
+        }).collect();
 
         Self {
             position,
             size,
+            colors,
             stages,
-            data_flows: Vec::new(),
+            animation: PipelineAnimation {
+                instruction_flow: Animation::new(0.5),
+                stage_transitions: vec![Animation::new(0.2); stage_names.len()],
+            },
+            current_state: None,
         }
     }
 
-    pub fn update(&mut self, pipeline: &Pipeline) {
-        // Update stage states
-        for (i, stage) in self.stages.iter_mut().enumerate() {
-            stage.instruction = pipeline.get_instruction_at_stage(i);
-            stage.stalled = pipeline.is_stage_stalled(i);
-            stage.hazard = pipeline.get_hazard_at_stage(i);
-        }
+    fn draw_pipeline_structure(&self) {
+        // Draw main pipeline block
+        let main_rect = Rect::new(self.position, self.size);
+        main_rect.fill(self.colors.background);
 
-        // Update data flows
-        self.update_data_flows(pipeline);
+        // Draw stage separators
+        for i in 1..self.stages.len() {
+            let x = self.position.x + i as f32 * (self.size.width / self.stages.len() as f32);
+            let separator = Rect::new(
+                Point::new(x, self.position.y),
+                Size::new(2.0, self.size.height)
+            );
+            separator.fill(Color::new(0.3, 0.3, 0.3, 1.0));
+        }
     }
 
-    pub fn render(&self, frame: &mut Frame) {
-        // Draw pipeline structure
-        self.draw_pipeline_structure(frame);
-        
-        // Draw stages
+    fn draw_stages(&self) {
         for stage in &self.stages {
-            stage.render(frame);
+            let color = match stage.state {
+                StageState::Empty => self.colors.background,
+                StageState::Active => self.colors.active,
+                StageState::Stalled => self.colors.stalled,
+                StageState::Bubble => self.colors.bubble,
+                StageState::Error => self.colors.error,
+            };
+
+            let stage_rect = Rect::new(stage.position, stage.size);
+            stage_rect.fill(color);
+
+            // Draw stage name
+            self.draw_stage_name(stage);
         }
-        
-        // Draw data flows
-        for flow in &self.data_flows {
-            flow.render(frame);
-        }
-        
-        // Draw hazard indicators
-        self.draw_hazards(frame);
-        
-        // Draw performance metrics
-        self.draw_metrics(frame);
     }
 
-    fn draw_hazards(&self, frame: &mut Frame) {
-        for stage in &self.stages {
-            if let Some(hazard) = &stage.hazard {
-                let color = match hazard {
-                    HazardType::Data => Color::RED,
-                    HazardType::Control => Color::YELLOW,
-                    HazardType::Structural => Color::ORANGE,
-                };
+    fn draw_stage_name(&self, stage: &PipelineStage) {
+        let name_pos = Point::new(
+            stage.position.x + stage.size.width / 2.0,
+            stage.position.y + 20.0
+        );
+        // In a real implementation, this would draw text
+    }
+
+    fn draw_metrics(&self) {
+        if let Some(state) = &self.current_state {
+            // Draw pipeline utilization
+            let utilization_rect = Rect::new(
+                Point::new(self.position.x, self.position.y + self.size.height + 10.0),
+                Size::new(self.size.width, 10.0)
+            );
+            utilization_rect.fill(self.colors.background);
+
+            let fill_width = self.size.width * state.utilization;
+            let fill_rect = Rect::new(
+                Point::new(self.position.x, self.position.y + self.size.height + 10.0),
+                Size::new(fill_width, 10.0)
+            );
+            fill_rect.fill(self.colors.active);
+        }
+    }
+}
+
+impl HardwareVisualizer for PipelineVisualizer {
+    fn update(&mut self, component: &dyn HardwareComponent) {
+        self.current_state = Some(component.get_state());
+        
+        // Update pipeline stages based on component state
+        if let Some(state) = &self.current_state {
+            if state.is_active {
+                self.animation.instruction_flow.start();
                 
-                let hazard_rect = stage.region.shrink(4.0);
-                frame.draw_rect_outline(hazard_rect, color, 2.0);
+                // Simulate pipeline activity
+                for (i, stage) in self.stages.iter_mut().enumerate() {
+                    if self.animation.stage_transitions[i].is_playing() {
+                        stage.state = StageState::Active;
+                    } else {
+                        stage.state = StageState::Empty;
+                    }
+                }
             }
         }
+    }
+
+    fn render(&self) {
+        // Draw pipeline structure
+        self.draw_pipeline_structure();
+        
+        // Draw stages
+        self.draw_stages();
+        
+        // Draw metrics
+        self.draw_metrics();
     }
 }

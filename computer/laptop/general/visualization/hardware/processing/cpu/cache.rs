@@ -1,96 +1,153 @@
-use super::common::{Point, Size, Color, Rect};
-use crate::hardware::cpu::cache_controller::{CacheController, CacheLine, AccessType};
+use super::super::super::super::src::hardware::visualization::{HardwareVisualizer, HardwareComponent, ComponentState};
+use super::common::{Point, Size, Color, Rect, Meter, Animation};
 
 pub struct CacheVisualizer {
     position: Point,
     size: Size,
-    cache_lines: Vec<CacheLineView>,
-    access_animations: Vec<AccessAnimation>,
+    colors: CacheColors,
+    animation: CacheAnimation,
+    current_state: Option<ComponentState>,
 }
 
-struct CacheLineView {
-    region: Rect,
-    line: CacheLine,
-    state: CacheLineState,
-    access_count: usize,
+struct CacheColors {
+    background: Color,
+    hit: Color,
+    miss: Color,
+    active: Color,
+    inactive: Color,
+}
+
+struct CacheAnimation {
+    access_animation: Animation,
+    hit_miss_animation: Animation,
+    last_hit: bool,
 }
 
 impl CacheVisualizer {
     pub fn new(position: Point, size: Size) -> Self {
+        let colors = CacheColors {
+            background: Color::new(0.1, 0.1, 0.2, 1.0),
+            hit: Color::new(0.0, 1.0, 0.0, 1.0),
+            miss: Color::new(1.0, 0.0, 0.0, 1.0),
+            active: Color::new(0.0, 0.7, 1.0, 1.0),
+            inactive: Color::new(0.3, 0.3, 0.3, 1.0),
+        };
+
         Self {
             position,
             size,
-            cache_lines: Vec::new(),
-            access_animations: Vec::new(),
+            colors,
+            animation: CacheAnimation {
+                access_animation: Animation::new(0.2),
+                hit_miss_animation: Animation::new(0.5),
+                last_hit: false,
+            },
+            current_state: None,
         }
     }
 
-    pub fn update(&mut self, cache: &CacheController) {
-        // Update cache line states
-        for (i, line) in cache.lines().iter().enumerate() {
-            if i >= self.cache_lines.len() {
-                self.cache_lines.push(CacheLineView::new(line.clone()));
+    fn draw_cache_structure(&self) {
+        // Draw main cache block
+        let main_rect = Rect::new(self.position, self.size);
+        main_rect.fill(self.colors.background);
+
+        // Draw cache lines
+        self.draw_cache_lines();
+
+        // Draw hit/miss indicator
+        self.draw_hit_miss_indicator();
+    }
+
+    fn draw_cache_lines(&self) {
+        let line_count = 8; // Number of cache lines to display
+        let line_height = self.size.height / line_count as f32;
+        
+        for i in 0..line_count {
+            let line_rect = Rect::new(
+                Point::new(self.position.x, self.position.y + i as f32 * line_height),
+                Size::new(self.size.width, line_height)
+            );
+            
+            // Draw line with animation if it's being accessed
+            if self.animation.access_animation.is_playing() {
+                let color = if self.animation.last_hit {
+                    self.colors.hit
+                } else {
+                    self.colors.miss
+                };
+                line_rect.fill(color);
             } else {
-                self.cache_lines[i].update(line);
+                line_rect.fill(self.colors.inactive);
             }
         }
-
-        // Update access animations
-        self.update_animations(cache);
     }
 
-    pub fn render(&self, frame: &mut Frame) {
-        // Draw cache structure
-        self.draw_cache_structure(frame);
-        
-        // Draw cache lines
-        for line in &self.cache_lines {
-            line.render(frame);
-        }
-        
-        // Draw access animations
-        for animation in &self.access_animations {
-            animation.render(frame);
-        }
-        
-        // Draw statistics
-        self.draw_cache_stats(frame);
-    }
-
-    fn draw_cache_structure(&self, frame: &mut Frame) {
-        // Draw cache outline
-        frame.draw_rect_outline(
-            Rect::new(self.position, self.size),
-            Color::WHITE,
-            2.0
-        );
-        
-        // Draw set boundaries
-        let sets = self.cache_lines.chunks(4); // 4-way set associative
-        for (i, _) in sets.enumerate() {
-            let y = self.position.y + (i as f32 * self.size.height / 8.0);
-            frame.draw_line(
-                Point::new(self.position.x, y),
-                Point::new(self.position.x + self.size.width, y),
-                Color::GRAY
+    fn draw_hit_miss_indicator(&self) {
+        if self.animation.hit_miss_animation.is_playing() {
+            let indicator_size = Size::new(20.0, 20.0);
+            let indicator_pos = Point::new(
+                self.position.x + self.size.width - indicator_size.width,
+                self.position.y + self.size.height - indicator_size.height
             );
+            
+            let color = if self.animation.last_hit {
+                self.colors.hit
+            } else {
+                self.colors.miss
+            };
+            
+            let indicator_rect = Rect::new(indicator_pos, indicator_size);
+            indicator_rect.fill(color);
         }
     }
 
-    fn draw_cache_stats(&self, frame: &mut Frame) {
-        let hits = self.cache_lines.iter()
-            .filter(|line| line.state == CacheLineState::Hit)
-            .count();
-        let misses = self.cache_lines.iter()
-            .filter(|line| line.state == CacheLineState::Miss)
-            .count();
+    fn draw_metrics(&self) {
+        if let Some(state) = &self.current_state {
+            // Draw hit rate meter
+            let hit_rate_meter = Meter::new(
+                Point::new(self.position.x + 10.0, self.position.y + self.size.height + 10.0),
+                Size::new(100.0, 10.0),
+                "Hit Rate".to_string(),
+                state.utilization,
+                0.0..1.0,
+                self.colors.hit
+            );
+            hit_rate_meter.draw();
+            
+            // Draw power consumption meter
+            let power_meter = Meter::new(
+                Point::new(self.position.x + 10.0, self.position.y + self.size.height + 30.0),
+                Size::new(100.0, 10.0),
+                "Power".to_string(),
+                state.power_consumption,
+                0.0..5.0,
+                self.colors.active
+            );
+            power_meter.draw();
+        }
+    }
+}
+
+impl HardwareVisualizer for CacheVisualizer {
+    fn update(&mut self, component: &dyn HardwareComponent) {
+        self.current_state = Some(component.get_state());
         
-        let hit_rate = hits as f32 / (hits + misses) as f32;
+        // Update animations based on cache activity
+        if let Some(state) = &self.current_state {
+            if state.is_active {
+                self.animation.access_animation.start();
+                self.animation.hit_miss_animation.start();
+                // In a real implementation, we would get hit/miss information from the cache
+                self.animation.last_hit = rand::random();
+            }
+        }
+    }
+
+    fn render(&self) {
+        // Draw cache structure
+        self.draw_cache_structure();
         
-        frame.draw_text(
-            &format!("Hit Rate: {:.1}%", hit_rate * 100.0),
-            self.position + Point::new(10.0, self.size.height - 20.0),
-            TextStyle::default()
-        );
+        // Draw metrics
+        self.draw_metrics();
     }
 } 
