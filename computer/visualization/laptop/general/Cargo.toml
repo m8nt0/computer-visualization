@@ -1,0 +1,14 @@
+[package]
+name = "computer"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+minifb = "0.25"
+fontdue = "0.7"
+winit = "0.30.9"
+rand = "0.8.5"
+
+[lib]
+name = "main"
+path = "./main.rs" 

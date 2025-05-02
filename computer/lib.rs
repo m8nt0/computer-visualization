@@ -1,12 +1,15 @@
 // Core library for computer architecture simulation
 // This serves as the entry point for all computer types
 
-pub mod common;
-pub mod laptop;
-pub mod desktop;
-pub mod server;
-pub mod smartphone;
-pub mod tablet;
+// pub mod common;
+// pub mod laptop;
+// pub mod desktop;
+// pub mod server;
+// pub mod smartphone;
+// pub mod tablet;
+pub mod src;
+pub mod visualization;
+
 
 // Trait defining the interface for all computer types
 pub trait Computer {
