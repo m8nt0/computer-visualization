@@ -7,7 +7,8 @@ pub mod non_volatile;
 pub mod volatile;
 
 use self::cache::{CacheHierarchy, CacheStats};
-use self::controller::MemoryController;
+// use self::volatile::dram::controller::MemoryController;
+
 use self::dram::DRAMController;
 use self::mmu::MMU;
 

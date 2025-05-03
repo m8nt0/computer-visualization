@@ -5,6 +5,7 @@ use crate::common::components::{CPU, Memory, Storage, Component};
 pub mod general;
 pub mod specific;
 pub mod personal;
+pub mod common;
 
 // Shared traits and structures for all laptop types
 

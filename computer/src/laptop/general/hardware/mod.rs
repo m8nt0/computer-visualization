@@ -10,7 +10,7 @@ pub mod visualization;
 // Public exports for convenient usage
 pub use self::processing::cpu::CPU;
 pub use self::processing::gpu::GPU;
-pub use self::memory::ram::RAM;
+pub use self::memory::volatile::ram::RAM;
 pub use self::memory::cache::Cache;
 pub use self::storage::ssd::SSD;
 pub use self::peripherals::input::keyboard::Keyboard;
