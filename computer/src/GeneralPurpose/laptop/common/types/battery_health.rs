@@ -1,0 +1,1 @@
+// # Structs/enums for battery health

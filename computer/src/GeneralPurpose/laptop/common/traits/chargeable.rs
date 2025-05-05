@@ -1,0 +1,1 @@
+// # Trait for components that store charge

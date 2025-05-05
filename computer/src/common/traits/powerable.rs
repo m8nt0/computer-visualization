@@ -1,0 +1,1 @@
+// Power on/off/suspend trait

@@ -27,3 +27,10 @@ notes.txt
 TODO.txt
 *.private
 *.secret 
+
+/thoughts.md
+**/thoughts.md
+**/thought.md
+/thought.md
+/Architecture.md
+**/Architecture.md

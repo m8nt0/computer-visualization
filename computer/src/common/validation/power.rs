@@ -1,0 +1,1 @@
+// Validate safe power levels

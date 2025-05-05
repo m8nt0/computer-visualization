@@ -1,0 +1,1 @@
+// # Ensure current/power limits aren't exceeded

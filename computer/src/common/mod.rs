@@ -6,7 +6,7 @@ pub const DEFAULT_SCREEN_HEIGHT: usize = 600;
 
 // Common utility functions
 pub mod utils {
-    // Utility function to calculate if a point is inside a rectangle
+    // Utility function to calculate if a point is inside a rectangle (OPINION: the rectangle referring to might be rect_x and rect_y)
     pub fn point_in_rect(x: f32, y: f32, rect_x: f32, rect_y: f32, rect_width: f32, rect_height: f32) -> bool {
         x >= rect_x && x <= rect_x + rect_width && y >= rect_y && y <= rect_y + rect_height
     }

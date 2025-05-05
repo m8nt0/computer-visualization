@@ -1,0 +1,1 @@
+// Logging config used by any device

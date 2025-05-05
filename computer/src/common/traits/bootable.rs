@@ -1,0 +1,1 @@
+// Trait for boot-capable devices

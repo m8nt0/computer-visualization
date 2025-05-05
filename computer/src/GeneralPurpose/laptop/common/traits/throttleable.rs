@@ -1,0 +1,1 @@
+// # Trait for throttling-capable components
