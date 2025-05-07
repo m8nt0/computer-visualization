@@ -1,3 +1,6 @@
+# gitignore
+.gitignore
+
 # Rust specific
 /target/
 **/target/
