@@ -1,6 +1,3 @@
 pub mod common;
-pub mod Desktop;
-pub mod laptop;
-pub mod Server;
-pub mod smartphone;
-pub mod Tablet;
+pub mod general_purpose;
+pub mod SpecialPurpose;

@@ -1,26 +1,19 @@
+pub mod config;
+pub mod hardware;
+pub mod interfaces;
+pub mod lifecycle;
+pub mod security;
+pub mod traits;
+pub mod types;
+pub mod utils;
+pub mod validation;
+pub mod testing;
+
 // Common functionality shared across all computer types
 
 // Constants that might be used across different computer types
 pub const DEFAULT_SCREEN_WIDTH: usize = 800;
 pub const DEFAULT_SCREEN_HEIGHT: usize = 600;
-
-// Common utility functions
-pub mod utils {
-    // Utility function to calculate if a point is inside a rectangle (OPINION: the rectangle referring to might be rect_x and rect_y)
-    pub fn point_in_rect(x: f32, y: f32, rect_x: f32, rect_y: f32, rect_width: f32, rect_height: f32) -> bool {
-        x >= rect_x && x <= rect_x + rect_width && y >= rect_y && y <= rect_y + rect_height
-    }
-    
-    // Utility function to convert RGB components to a single u32 value
-    pub fn rgb_to_u32(r: u8, g: u8, b: u8) -> u32 {
-        ((r as u32) << 16) | ((g as u32) << 8) | (b as u32)
-    }
-    
-    // Utility function to convert RGBA components to a single u32 value
-    pub fn rgba_to_u32(r: u8, g: u8, b: u8, a: u8) -> u32 {
-        ((r as u32) << 24) | ((g as u32) << 16) | ((b as u32) << 8) | (a as u32)
-    }
-}
 
 // Common components that might be shared across different computer types
 pub mod components {
